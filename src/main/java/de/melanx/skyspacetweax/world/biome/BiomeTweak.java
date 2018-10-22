@@ -1,7 +1,6 @@
 package de.melanx.skyspacetweax.world.biome;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockDoublePlant;
 import net.minecraft.block.BlockFlower;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -35,8 +34,8 @@ public class BiomeTweak implements IWorldGenerator {
 
     private void generateFlower(BlockFlower.EnumFlowerType flowerType, World world, Random random, int x, int z) {
         if (random.nextFloat() < 8) {
-            final int posX = x + world.rand.nextInt(32);
-            final int posZ = z + world.rand.nextInt(32);
+            final int posX = x + world.rand.nextInt(16);
+            final int posZ = z + world.rand.nextInt(16);
             final BlockPos newPos = getGroundPos(world, posX, posZ);
 
             world.setBlockState(newPos, Blocks.RED_FLOWER.getStateFromMeta(8));
@@ -53,26 +52,25 @@ public class BiomeTweak implements IWorldGenerator {
         final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(topPos);
 
         IBlockState blockState = world.getBlockState(pos);
-        while (isUnvalidBlock(blockState, world, pos) || canReplace(blockState, world, pos)) {
+        while (isTreeBlock(blockState, world, pos) || canReplace(blockState, world, pos)) {
             pos.move(EnumFacing.DOWN);
             if (pos.getY() <= 0) {
                 return null;
             }
             blockState = world.getBlockState(pos);
-
         }
 
         return pos.up();
     }
 
+    public static boolean isTreeBlock(IBlockState blockState, World world, BlockPos pos) {
+        Block block = blockState.getBlock();
+        return block.isLeaves(blockState, world, pos) || block.isWood(world, pos);
+    }
+
     public static boolean canReplace(IBlockState blockState, World world, BlockPos pos) {
         Block block = blockState.getBlock();
         return block.isReplaceable(world, pos) && !blockState.getMaterial().isLiquid();
-    }
-
-    public static boolean isUnvalidBlock(IBlockState blockState, World world, BlockPos pos) {
-        Block block = blockState.getBlock();
-        return block.isLeaves(blockState, world, pos) || block.isWood(world, pos);
     }
 
 }
